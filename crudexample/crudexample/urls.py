@@ -17,9 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from employee import views
-
+from django.shortcuts import redirect
+ 
+def home(request):
+    return redirect(views.show)
+ 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', home),
     path('emp', views.emp),  
     path('show',views.show),  
     path('edit/<int:id>', views.edit),  
