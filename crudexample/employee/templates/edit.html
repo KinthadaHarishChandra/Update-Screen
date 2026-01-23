@@ -22,7 +22,10 @@
     <div class="form-group row">  
         <label class="col-sm-2 col-form-label">Insurance Id:</label>  
         <div class="col-sm-4">  
-            <input type="text" name="eid" id="id_eid" required maxlength="20" value="{{ employee.eid }}"/>  
+            <input type="text" name="eid" id="id_eid" required maxlength="20" inputmode="numeric" value="{{ employee.eid }}"/>  
+            <div id="eid-error" style="display:none;color:#a94442;margin-top:5px;font-size:0.9em;">
+                Please enter digits only (no letters or special characters).
+            </div>
         </div>  
     </div>  
 
@@ -30,6 +33,9 @@
         <label class="col-sm-2 col-form-label">Insurance Name:</label>  
         <div class="col-sm-4">  
             <input type="text" name="ename" id="id_ename" required maxlength="100" value="{{ employee.ename }}" />  
+            <div id="ename-error" style="display:none;color:#a94442;margin-top:5px;font-size:0.9em;">
+                Please enter letters and spaces only (no numbers or special characters).
+            </div>
         </div>  
     </div>  
 
@@ -37,6 +43,9 @@
         <label class="col-sm-2 col-form-label">Insurance Type:</label>  
         <div class="col-sm-4">  
             <input type="text" name="eemail" id="id_eemail" required maxlength="254" value="{{ employee.eemail }}" />  
+            <div id="eemail-error" style="display:none;color:#a94442;margin-top:5px;font-size:0.9em;">
+                Please enter letters and spaces only (no numbers or special characters).
+            </div>
         </div>  
     </div>  
 
@@ -44,6 +53,9 @@
         <label class="col-sm-2 col-form-label">Insurance Coverage:</label>  
         <div class="col-sm-4">  
             <input type="text" name="econtact" id="id_econtact" required maxlength="15" value="{{ employee.econtact }}" />  
+            <div id="econtact-error" style="display:none;color:#a94442;margin-top:5px;font-size:0.9em;">
+                Please enter a valid number (digits and one optional decimal point only).
+            </div>
         </div>  
     </div>  
 
@@ -56,5 +68,104 @@
 
     </div>  
 </form>  
+<script>
+(function(){
+    var form = document.querySelector('form.post-form');
+    var eid = document.getElementById('id_eid');
+    var err = document.getElementById('eid-error');
+
+    var ename = document.getElementById('id_ename');
+    var enameErr = document.getElementById('ename-error');
+
+    var eemail = document.getElementById('id_eemail');
+    var eemailErr = document.getElementById('eemail-error');
+
+    var econtact = document.getElementById('id_econtact');
+    var econtactErr = document.getElementById('econtact-error');
+
+    function isDigitsOnly(s){ return /^\d*$/.test(s); } // allow empty while typing; required attribute handles empty
+    function isLettersAndSpacesOnly(s){ return /^[A-Za-z\s]*$/.test(s); } // allow empty while typing
+    function isDecimalPartial(s){ return /^\d*\.?\d*$/.test(s); } // allow typing partial like "123." or ".5"
+    function isDecimalStrict(s){ return /^\d+(\.\d+)?$/.test(s); } // final valid number like "123" or "123.45"
+
+    function validateEid(){
+        if(!isDigitsOnly(eid.value)){
+            err.style.display = 'block';
+            return false;
+        } else {
+            err.style.display = 'none';
+            return true;
+        }
+    }
+    function validateEname(){
+        if(!isLettersAndSpacesOnly(ename.value)){
+            enameErr.style.display = 'block';
+            return false;
+        } else {
+            enameErr.style.display = 'none';
+            return true;
+        }
+    }
+    function validateEemail(){
+        if(!isLettersAndSpacesOnly(eemail.value)){
+            eemailErr.style.display = 'block';
+            return false;
+        } else {
+            eemailErr.style.display = 'none';
+            return true;
+        }
+    }
+    function validateEcontact(perfect){
+        perfect = !!perfect;
+        if(perfect){
+            if(!isDecimalStrict(econtact.value)){
+                econtactErr.style.display = 'block';
+                return false;
+            } else {
+                econtactErr.style.display = 'none';
+                return true;
+            }
+        } else {
+            if(!isDecimalPartial(econtact.value)){
+                econtactErr.style.display = 'block';
+                return false;
+            } else {
+                econtactErr.style.display = 'none';
+                return true;
+            }
+        }
+    }
+
+    if(eid){
+        eid.addEventListener('input', validateEid);
+    }
+    if(ename){
+        ename.addEventListener('input', validateEname);
+    }
+    if(eemail){
+        eemail.addEventListener('input', validateEemail);
+    }
+    if(econtact){
+        econtact.addEventListener('input', function(){ validateEcontact(false); });
+    }
+
+    if(form){
+        form.addEventListener('submit', function(e){
+            var ok = true;
+            if(eid) ok = validateEid() && ok;
+            if(ename) ok = validateEname() && ok;
+            if(eemail) ok = validateEemail() && ok;
+            if(econtact) ok = validateEcontact(true) && ok; // strict check on submit
+            if(!ok){
+                e.preventDefault();
+                if(eid && !validateEid()) eid.focus();
+                else if(ename && !validateEname()) ename.focus();
+                else if(eemail && !validateEemail()) eemail.focus();
+                else if(econtact && !validateEcontact(true)) econtact.focus();
+            }
+        });
+    }
+})();
+</script>
 </body>  
 </html>
